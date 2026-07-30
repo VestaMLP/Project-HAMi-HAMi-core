@@ -33,11 +33,25 @@ nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v3(
     nvmlDevice_t device,
     nvmlGridLicensableFeatures_t *pGridLicensableFeatures);
 
-nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(nvmlDevice_t device,
-                                                     unsigned int *infoCount,
-                                                     nvmlProcessInfo_v2_t *infos);
+nvmlReturn_t nvmlDeviceGetComputeRunningProcesses(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_v1_t *infos);
+nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_v1_t *infos);
+nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_v1_t *infos);
 
+nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_v2_t *infos);
 nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(
     nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_v2_t *infos);
+nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_v2_t *infos);
+
+nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v3(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos);
+nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v3(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos);
+nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v3(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos);
 
 #endif

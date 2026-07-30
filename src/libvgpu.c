@@ -152,6 +152,69 @@ void* __dlsym_hook_section(void* handle, const char* symbol) {
         }
     }
     DLSYM_HOOK_FUNC(cuInit);
+    DLSYM_HOOK_FUNC(cuCtxGetDevice_v2);
+    DLSYM_HOOK_FUNC(cuCtxSynchronize_v2);
+    DLSYM_HOOK_FUNC(cuDeviceGetHostAtomicCapabilities);
+    DLSYM_HOOK_FUNC(cuDeviceGetP2PAtomicCapabilities);
+    DLSYM_HOOK_FUNC(cuGraphNodeGetContainingGraph);
+    DLSYM_HOOK_FUNC(cuGraphNodeGetLocalId);
+    DLSYM_HOOK_FUNC(cuGraphNodeGetToolsId);
+    DLSYM_HOOK_FUNC(cuGraphGetId);
+    DLSYM_HOOK_FUNC(cuGraphExecGetId);
+    DLSYM_HOOK_FUNC(cuFuncGetParamCount);
+    DLSYM_HOOK_FUNC(cuKernelGetParamCount);
+    DLSYM_HOOK_FUNC(cuGraphNodeGetParams);
+    DLSYM_HOOK_FUNC(cuCoredumpRegisterStartCallback);
+    DLSYM_HOOK_FUNC(cuCoredumpRegisterCompleteCallback);
+    DLSYM_HOOK_FUNC(cuCoredumpDeregisterStartCallback);
+    DLSYM_HOOK_FUNC(cuCoredumpDeregisterCompleteCallback);
+    DLSYM_HOOK_FUNC(cuLaunchHostFunc);
+    DLSYM_HOOK_FUNC(cuLaunchHostFunc_ptsz);
+    DLSYM_HOOK_FUNC(cuLaunchHostFunc_v2);
+    DLSYM_HOOK_FUNC(cuMemcpyBatchAsync);
+    DLSYM_HOOK_FUNC(cuMemcpy3DBatchAsync);
+    DLSYM_HOOK_FUNC(cuMemcpyBatchAsync_ptsz);
+    DLSYM_HOOK_FUNC(cuMemcpy3DBatchAsync_ptsz);
+    DLSYM_HOOK_FUNC(cuMemcpyWithAttributesAsync_ptsz);
+    DLSYM_HOOK_FUNC(cuMemcpy3DWithAttributesAsync_ptsz);
+    DLSYM_HOOK_FUNC(cuMemPrefetchBatchAsync_ptsz);
+    DLSYM_HOOK_FUNC(cuMemDiscardBatchAsync_ptsz);
+    DLSYM_HOOK_FUNC(cuMemDiscardAndPrefetchBatchAsync_ptsz);
+    DLSYM_HOOK_FUNC(cuMemcpyBatchAsync_v2);
+    DLSYM_HOOK_FUNC(cuMemcpy3DBatchAsync_v2);
+    DLSYM_HOOK_FUNC(cuMemcpyWithAttributesAsync);
+    DLSYM_HOOK_FUNC(cuMemcpy3DWithAttributesAsync);
+    DLSYM_HOOK_FUNC(cuMemPrefetchBatchAsync);
+    DLSYM_HOOK_FUNC(cuMemDiscardBatchAsync);
+    DLSYM_HOOK_FUNC(cuMemDiscardAndPrefetchBatchAsync);
+    DLSYM_HOOK_FUNC(cuMemGetDefaultMemPool);
+    DLSYM_HOOK_FUNC(cuMemGetMemPool);
+    DLSYM_HOOK_FUNC(cuMemSetMemPool);
+    DLSYM_HOOK_FUNC(cuMulticastBindMem);
+    DLSYM_HOOK_FUNC(cuMulticastBindAddr);
+    DLSYM_HOOK_FUNC(cuMulticastBindMem_v2);
+    DLSYM_HOOK_FUNC(cuMulticastBindAddr_v2);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointIdReserve);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointIdRelease);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointCreate);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointAddDevice);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointDestroy);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointBindAddr);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointBindMem);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointUnbind);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointExport);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointImport);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointGetLimits);
+    DLSYM_HOOK_FUNC(cuLogicalEndpointQuery);
+    DLSYM_HOOK_FUNC(cuStreamGetDevResource);
+    DLSYM_HOOK_FUNC(cuStreamGetDevResource_ptsz);
+    DLSYM_HOOK_FUNC(cuDevSmResourceSplit);
+    DLSYM_HOOK_FUNC(cuStreamBeginCaptureToCig);
+    DLSYM_HOOK_FUNC(cuStreamBeginCaptureToCig_ptsz);
+    DLSYM_HOOK_FUNC(cuStreamEndCaptureToCig);
+    DLSYM_HOOK_FUNC(cuStreamEndCaptureToCig_ptsz);
+    DLSYM_HOOK_FUNC(cuStreamBeginRecaptureToGraph);
+    DLSYM_HOOK_FUNC(cuStreamBeginRecaptureToGraph_ptsz);
     DLSYM_HOOK_FUNC(cuGetProcAddress);
     DLSYM_HOOK_FUNC(cuGetProcAddress_v2);
     //Context
@@ -495,6 +558,29 @@ void* __dlsym_hook_section_nvml(void* handle, const char* symbol) {
     DLSYM_HOOK_FUNC(nvmlDeviceGetHandleBySerial);
     /** nvmlDeviceGetHandleByUUID */
     DLSYM_HOOK_FUNC(nvmlDeviceGetHandleByUUID);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetHandleByUUIDV);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetRunningProcessDetailList);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetAccountingStats_v2);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetGpuFabricInfoV);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetClockOffsets);
+    DLSYM_HOOK_FUNC(nvmlDeviceSetClockOffsets);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetCapabilities);
+    DLSYM_HOOK_FUNC(nvmlSystemGetDriverBranch);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetAddressingMode);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetRepairStatus);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetPdi);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetNvLinkInfo);
+    DLSYM_HOOK_FUNC(nvmlDeviceReadWritePRM_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetGpuInstanceProfileInfoByIdV);
+    DLSYM_HOOK_FUNC(nvmlSystemGetCPER_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetPowerMizerMode_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceSetPowerMizerMode_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceSetHostname_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetHostname_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts);
+    DLSYM_HOOK_FUNC(nvmlDeviceWorkloadPowerProfileUpdateProfiles_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceSetRusdSettings_v1);
+
     /** nvmlDeviceGetIndex */
     DLSYM_HOOK_FUNC(nvmlDeviceGetIndex);
     /** nvmlDeviceGetInforomConfigurationChecksum */
@@ -857,6 +943,14 @@ void* __dlsym_hook_section_nvml(void* handle, const char* symbol) {
     DLSYM_HOOK_FUNC(nvmlDeviceGetComputeRunningProcesses_v2);
     /** nvmlDeviceGetGraphicsRunningProcesses_v2 */
     DLSYM_HOOK_FUNC(nvmlDeviceGetGraphicsRunningProcesses_v2);
+    /** nvmlDeviceGetComputeRunningProcesses_v3 */
+    DLSYM_HOOK_FUNC(nvmlDeviceGetComputeRunningProcesses_v3);
+    /** nvmlDeviceGetGraphicsRunningProcesses_v3 */
+    DLSYM_HOOK_FUNC(nvmlDeviceGetGraphicsRunningProcesses_v3);
+    /** nvmlDeviceGetMPSComputeRunningProcesses_v3 */
+    DLSYM_HOOK_FUNC(nvmlDeviceGetMPSComputeRunningProcesses_v3);
+    /** nvmlDeviceGetMPSComputeRunningProcesses_v2 */
+    DLSYM_HOOK_FUNC(nvmlDeviceGetMPSComputeRunningProcesses_v2);
     /** nvmlDeviceSetTemperatureThreshold */
     DLSYM_HOOK_FUNC(nvmlDeviceSetTemperatureThreshold);
     /** nvmlRetry_NvRmControl */
@@ -865,6 +959,43 @@ void* __dlsym_hook_section_nvml(void* handle, const char* symbol) {
     DLSYM_HOOK_FUNC(nvmlVgpuInstanceGetGpuInstanceId);
     /** nvmlVgpuTypeGetGpuInstanceProfileId */
     DLSYM_HOOK_FUNC(nvmlVgpuTypeGetGpuInstanceProfileId);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetBBXTimeData_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetCurrentClocksEventReasons);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetRemappedRows_v2);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetSupportedClocksEventReasons);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetUnrepairableMemoryFlag_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetVgpuCapabilities);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetVgpuHeterogeneousMode);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetVgpuSchedulerLog);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetVgpuSchedulerLog_v2);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetVgpuSchedulerState);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetVgpuSchedulerState_v2);
+    DLSYM_HOOK_FUNC(nvmlDeviceGetVgpuTypeCreatablePlacements);
+    DLSYM_HOOK_FUNC(nvmlDeviceReadPRMCounters_v1);
+    DLSYM_HOOK_FUNC(nvmlDeviceSetPowerManagementLimit_v2);
+    DLSYM_HOOK_FUNC(nvmlDeviceSetVgpuCapabilities);
+    DLSYM_HOOK_FUNC(nvmlDeviceSetVgpuHeterogeneousMode);
+    DLSYM_HOOK_FUNC(nvmlDeviceSetVgpuSchedulerState);
+    DLSYM_HOOK_FUNC(nvmlDeviceSetVgpuSchedulerState_v2);
+    DLSYM_HOOK_FUNC(nvmlDeviceVgpuForceGspUnload);
+    DLSYM_HOOK_FUNC(nvmlDeviceWorkloadPowerProfileClearRequestedProfiles);
+    DLSYM_HOOK_FUNC(nvmlDeviceWorkloadPowerProfileSetRequestedProfiles);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceGetActiveVgpus);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceGetCreatableVgpus);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceGetVgpuHeterogeneousMode);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceGetVgpuSchedulerLog);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceGetVgpuSchedulerLog_v2);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceGetVgpuSchedulerState);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceGetVgpuSchedulerState_v2);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceGetVgpuTypeCreatablePlacements);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceSetVgpuHeterogeneousMode);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceSetVgpuSchedulerState);
+    DLSYM_HOOK_FUNC(nvmlGpuInstanceSetVgpuSchedulerState_v2);
+    DLSYM_HOOK_FUNC(nvmlSystemEventSetCreate);
+    DLSYM_HOOK_FUNC(nvmlSystemEventSetFree);
+    DLSYM_HOOK_FUNC(nvmlSystemEventSetWait);
+    DLSYM_HOOK_FUNC(nvmlSystemRegisterEvents);
+    DLSYM_HOOK_FUNC(nvmlVgpuTypeGetMaxInstancesPerGpuInstance);
     return NULL;
 }
 

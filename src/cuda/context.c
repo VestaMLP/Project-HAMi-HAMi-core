@@ -150,3 +150,6 @@ CUresult cuCtxSynchronize ( void ){
     return res;
 }
 
+
+CUresult CUDAAPI cuCtxGetDevice_v2(CUdevice *device, CUcontext ctx) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuCtxGetDevice_v2, device, ctx); }
+CUresult CUDAAPI cuCtxSynchronize_v2(CUcontext ctx) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuCtxSynchronize_v2, ctx); }

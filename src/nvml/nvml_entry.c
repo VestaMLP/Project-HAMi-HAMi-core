@@ -34,7 +34,7 @@ nvmlReturn_t nvmlDeviceGetHandleByIndex(unsigned int index,
 
 nvmlReturn_t nvmlDeviceGetComputeRunningProcesses(nvmlDevice_t device,
                                                   unsigned int *infoCount,
-                                                  nvmlProcessInfo_t *infos) {
+                                                  nvmlProcessInfo_v1_t *infos) {
   return NVML_OVERRIDE_CALL_NO_LOG(nvml_library_entry,
                          nvmlDeviceGetComputeRunningProcesses, device,
                          infoCount, infos);
@@ -62,7 +62,7 @@ nvmlReturn_t nvmlDeviceGetProcessUtilization(
                          lastSeenTimeStamp);
 }
 
-nvmlReturn_t nvmlDeviceGetProcessesUtilizationInfo(
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetProcessesUtilizationInfo(
     nvmlDevice_t device, nvmlProcessesUtilizationInfo_t *processesUtilInfo) {
   driver_sym_t entry = NVML_FIND_ENTRY(nvml_library_entry,
                                        nvmlDeviceGetProcessesUtilizationInfo);
@@ -345,10 +345,10 @@ nvmlReturn_t nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int *speed) {
                          speed);
 }
 
-nvmlReturn_t nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device,
+nvmlReturn_t nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned int fan,
                                       unsigned int *speed) {
   return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetFanSpeed_v2, device,
-                         speed);
+                         fan, speed);
 }
 
 nvmlReturn_t nvmlDeviceGetFieldValues(nvmlDevice_t device, int valuesCount,
@@ -366,7 +366,7 @@ nvmlReturn_t nvmlDeviceGetGpuOperationMode(nvmlDevice_t device,
 
 nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses(nvmlDevice_t device,
                                                    unsigned int *infoCount,
-                                                   nvmlProcessInfo_t *infos) {
+                                                   nvmlProcessInfo_v1_t *infos) {
   return NVML_OVERRIDE_CALL(nvml_library_entry,
                          nvmlDeviceGetGraphicsRunningProcesses, device,
                          infoCount, infos);
@@ -475,7 +475,7 @@ nvmlReturn_t nvmlDeviceGetMinorNumber(nvmlDevice_t device,
 // Guessed function proto type
 nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses(nvmlDevice_t device,
                                                      unsigned int *infoCount,
-                                                     void *infos) {
+                                                     nvmlProcessInfo_v1_t *infos) {
   return NVML_OVERRIDE_CALL(nvml_library_entry,
                          nvmlDeviceGetMPSComputeRunningProcesses, device,
                          infoCount, infos);
@@ -1212,9 +1212,10 @@ nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v2(
 nvmlReturn_t nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device,
                                           nvmlPageRetirementCause_t cause,
                                           unsigned int *pageCount,
-                                          unsigned long long *addresses) {
+                                          unsigned long long *addresses,
+                                          unsigned long long *timestamps) {
   return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetRetiredPages_v2,
-                         device, cause, pageCount, addresses);
+                         device, cause, pageCount, addresses, timestamps);
 }
 
 nvmlReturn_t nvmlDeviceResetGpuLockedClocks(nvmlDevice_t device) {
@@ -1555,6 +1556,34 @@ nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(
                          nvmlDeviceGetGraphicsRunningProcesses_v2, device,
                          infoCount, infos);
 }
+nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v3(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
+  return NVML_OVERRIDE_CALL_NO_LOG(
+      nvml_library_entry, nvmlDeviceGetComputeRunningProcesses_v3, device,
+      infoCount, infos);
+}
+
+nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v3(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
+  return NVML_OVERRIDE_CALL_NO_LOG(
+      nvml_library_entry, nvmlDeviceGetGraphicsRunningProcesses_v3, device,
+      infoCount, infos);
+}
+
+nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v3(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
+  return NVML_OVERRIDE_CALL_NO_LOG(
+      nvml_library_entry, nvmlDeviceGetMPSComputeRunningProcesses_v3, device,
+      infoCount, infos);
+}
+
+nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(
+    nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_v2_t *infos) {
+  return NVML_OVERRIDE_CALL_NO_LOG(
+      nvml_library_entry, nvmlDeviceGetMPSComputeRunningProcesses_v2, device,
+      infoCount, infos);
+}
+
 nvmlReturn_t nvmlDeviceSetTemperatureThreshold(
     nvmlDevice_t device, nvmlTemperatureThresholds_t thresholdType, int *temp) {
   return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceSetTemperatureThreshold,
@@ -1577,3 +1606,65 @@ nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgpuTypeId,
                          nvmlVgpuTypeGetGpuInstanceProfileId, vgpuTypeId,
                          gpuInstanceProfileId);
 }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetGpuFabricInfoV(nvmlDevice_t device, nvmlGpuFabricInfoV_t *gpuFabricInfo) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetGpuFabricInfoV, device, gpuFabricInfo); }
+
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t *info) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetClockOffsets, device, info); }
+
+__attribute__((weak)) nvmlReturn_t nvmlDeviceSetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t *info) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceSetClockOffsets, device, info); }
+
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapabilities_t *caps) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetCapabilities, device, caps); }
+
+__attribute__((weak)) nvmlReturn_t nvmlSystemGetDriverBranch(nvmlSystemDriverBranchInfo_t *branchInfo, unsigned int length) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlSystemGetDriverBranch, branchInfo, length); }
+
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetAddressingMode(nvmlDevice_t device, nvmlDeviceAddressingMode_t *mode) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetAddressingMode, device, mode); }
+
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetRepairStatus(nvmlDevice_t device, nvmlRepairStatus_t *repairStatus) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetRepairStatus, device, repairStatus); }
+
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetPdi(nvmlDevice_t device, nvmlPdi_t *pdi) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetPdi, device, pdi); }
+
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetNvLinkInfo(nvmlDevice_t device, nvmlNvLinkInfo_t *info) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetNvLinkInfo, device, info); }
+
+__attribute__((weak)) nvmlReturn_t nvmlDeviceReadWritePRM_v1(nvmlDevice_t device, nvmlPRMTLV_v1_t *buffer) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceReadWritePRM_v1, device, buffer); }
+
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstanceProfileInfo_v2_t *info) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetGpuInstanceProfileInfoByIdV, device, profileId, info); }
+
+__attribute__((weak)) nvmlReturn_t nvmlSystemGetCPER_v1(nvmlGetCPER_v1_t *cper) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlSystemGetCPER_v1, cper); }
+
+/* NVML API 13 entry points; policy is enforced by the strong hook definitions. */
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetBBXTimeData_v1(nvmlDevice_t device, nvmlBBXTimeData_v1_t *timeData) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetBBXTimeData_v1, device, timeData); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetCurrentClocksEventReasons(nvmlDevice_t device, unsigned long long *clocksEventReasons) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetCurrentClocksEventReasons, device, clocksEventReasons); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappedRowsInfo_v2_t *info) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetRemappedRows_v2, device, info); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetSupportedClocksEventReasons(nvmlDevice_t device, unsigned long long *supportedClocksEventReasons) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetSupportedClocksEventReasons, device, supportedClocksEventReasons); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t *unrepairableMemoryStatus) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetUnrepairableMemoryFlag_v1, device, unrepairableMemoryStatus); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, unsigned int *capResult) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetVgpuCapabilities, device, capability, capResult); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetVgpuHeterogeneousMode(nvmlDevice_t device, nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetVgpuHeterogeneousMode, device, pHeterogeneousMode); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetVgpuSchedulerLog(nvmlDevice_t device, nvmlVgpuSchedulerLog_t *pSchedulerLog) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetVgpuSchedulerLog, device, pSchedulerLog); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgpuSchedulerLogInfo_v2_t *pSchedulerLogInfo) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetVgpuSchedulerLog_v2, device, pSchedulerLogInfo); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerGetState_t *pSchedulerState) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetVgpuSchedulerState, device, pSchedulerState); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerStateInfo_v2_t *pSchedulerStateInfo) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetVgpuSchedulerState_v2, device, pSchedulerStateInfo); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceGetVgpuTypeCreatablePlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t *pPlacementList) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetVgpuTypeCreatablePlacements, device, vgpuTypeId, pPlacementList); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t *counterList) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceReadPRMCounters_v1, device, counterList); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceSetPowerManagementLimit_v2(nvmlDevice_t device, nvmlPowerValue_v2_t *powerValue) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceSetPowerManagementLimit_v2, device, powerValue); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceSetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, nvmlEnableState_t state) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceSetVgpuCapabilities, device, capability, state); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceSetVgpuHeterogeneousMode(nvmlDevice_t device, const nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceSetVgpuHeterogeneousMode, device, pHeterogeneousMode); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceSetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerSetState_t *pSchedulerState) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceSetVgpuSchedulerState, device, pSchedulerState); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerState_v2_t *pSchedulerState) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceSetVgpuSchedulerState_v2, device, pSchedulerState); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceVgpuForceGspUnload(nvmlDevice_t device) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceVgpuForceGspUnload, device); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t *requestedProfiles) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceWorkloadPowerProfileClearRequestedProfiles, device, requestedProfiles); }
+__attribute__((weak)) nvmlReturn_t nvmlDeviceWorkloadPowerProfileSetRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t *requestedProfiles) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceWorkloadPowerProfileSetRequestedProfiles, device, requestedProfiles); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceGetActiveVgpus(nvmlGpuInstance_t gpuInstance, nvmlActiveVgpuInstanceInfo_t *pVgpuInstanceInfo) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceGetActiveVgpus, gpuInstance, pVgpuInstanceInfo); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceGetCreatableVgpus(nvmlGpuInstance_t gpuInstance, nvmlVgpuTypeIdInfo_t *pVgpus) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceGetCreatableVgpus, gpuInstance, pVgpus); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceGetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceGetVgpuHeterogeneousMode, gpuInstance, pHeterogeneousMode); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerLog(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_t *pSchedulerLogInfo) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceGetVgpuSchedulerLog, gpuInstance, pSchedulerLogInfo); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_v2_t *pSchedulerLogInfo) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceGetVgpuSchedulerLog_v2, gpuInstance, pSchedulerLogInfo); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_t *pSchedulerStateInfo) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceGetVgpuSchedulerState, gpuInstance, pSchedulerStateInfo); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_v2_t *pSchedulerStateInfo) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceGetVgpuSchedulerState_v2, gpuInstance, pSchedulerStateInfo); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceGetVgpuTypeCreatablePlacements(nvmlGpuInstance_t gpuInstance, nvmlVgpuCreatablePlacementInfo_t *pCreatablePlacementInfo) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceGetVgpuTypeCreatablePlacements, gpuInstance, pCreatablePlacementInfo); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceSetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, const nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceSetVgpuHeterogeneousMode, gpuInstance, pHeterogeneousMode); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_t *pScheduler) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceSetVgpuSchedulerState, gpuInstance, pScheduler); }
+__attribute__((weak)) nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t *pSchedulerState) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlGpuInstanceSetVgpuSchedulerState_v2, gpuInstance, pSchedulerState); }
+__attribute__((weak)) nvmlReturn_t nvmlSystemEventSetCreate(nvmlSystemEventSetCreateRequest_t *request) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlSystemEventSetCreate, request); }
+__attribute__((weak)) nvmlReturn_t nvmlSystemEventSetFree(nvmlSystemEventSetFreeRequest_t *request) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlSystemEventSetFree, request); }
+__attribute__((weak)) nvmlReturn_t nvmlSystemEventSetWait(nvmlSystemEventSetWaitRequest_t *request) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlSystemEventSetWait, request); }
+__attribute__((weak)) nvmlReturn_t nvmlSystemRegisterEvents(nvmlSystemRegisterEventRequest_t *request) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlSystemRegisterEvents, request); }
+__attribute__((weak)) nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerGpuInstance(nvmlVgpuTypeMaxInstance_t *pMaxInstance) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlVgpuTypeGetMaxInstancesPerGpuInstance, pMaxInstance); }

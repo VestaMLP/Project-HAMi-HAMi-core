@@ -73,12 +73,17 @@ extern "C" {
 
 typedef struct nvmlDevice_st *nvmlDevice_t;
 
-typedef struct nvmlProcessInfo_st {
-  unsigned int pid;                  //!< Process ID
-  unsigned long long usedGpuMemory;  //!< Amount of used GPU memory in bytes.
-  //! Under WDDM, \ref NVML_VALUE_NOT_AVAILABLE is always reported
-  //! because Windows KMD manages all the memory and not the NVIDIA driver
-} nvmlProcessInfo_t;
+typedef struct nvmlProcessInfo_v1_st {
+  unsigned int pid;
+  unsigned long long usedGpuMemory;
+} nvmlProcessInfo_v1_t;
+
+typedef struct nvmlProcessInfo_v2_st {
+  unsigned int pid;
+  unsigned long long usedGpuMemory;
+  unsigned int gpuInstanceId;
+  unsigned int computeInstanceId;
+} nvmlProcessInfo_v2_t, nvmlProcessInfo_t;
 
 /**
  * Return values for NVML API calls.
@@ -1251,5 +1256,65 @@ typedef struct nvmlRowRemapperHistogramValues_st {
 #ifdef __cplusplus
 }
 #endif
+
+
+/* NVML 13 ABI types used by exact hooks. */
+#define NVML_DEVICE_UUID_ASCII_LEN 41
+#define NVML_DEVICE_UUID_BINARY_LEN 16
+typedef union { char str[NVML_DEVICE_UUID_ASCII_LEN]; unsigned char bytes[NVML_DEVICE_UUID_BINARY_LEN]; } nvmlUUIDValue_t;
+typedef struct { unsigned int version; unsigned int type; nvmlUUIDValue_t value; } nvmlUUID_v1_t;
+typedef nvmlUUID_v1_t nvmlUUID_t;
+typedef struct nvmlProcessDetailList_v1_st nvmlProcessDetailList_t;
+typedef struct nvmlAccountingStats_v2_st nvmlAccountingStats_v2_t;
+typedef struct nvmlGpuFabricInfoV_opaque_st nvmlGpuFabricInfoV_t;
+typedef struct nvmlClockOffset_opaque_st nvmlClockOffset_t;
+typedef struct nvmlDeviceCapabilities_opaque_st nvmlDeviceCapabilities_t;
+typedef struct nvmlSystemDriverBranchInfo_opaque_st nvmlSystemDriverBranchInfo_t;
+typedef struct nvmlDeviceAddressingMode_opaque_st nvmlDeviceAddressingMode_t;
+typedef struct nvmlRepairStatus_opaque_st nvmlRepairStatus_t;
+typedef struct nvmlPdi_opaque_st nvmlPdi_t;
+typedef struct nvmlNvLinkInfo_opaque_st nvmlNvLinkInfo_t;
+typedef struct nvmlPRMTLV_v1_opaque_st nvmlPRMTLV_v1_t;
+typedef struct nvmlGpuInstanceProfileInfo_v2_opaque_st nvmlGpuInstanceProfileInfo_v2_t;
+typedef struct nvmlGetCPER_v1_opaque_st nvmlGetCPER_v1_t;
+typedef struct { unsigned int currentMode; unsigned int mode; unsigned int supportedPowerMizerModes; } nvmlDevicePowerMizerModes_v1_t;
+#define NVML_DEVICE_HOSTNAME_BUFFER_SIZE 64
+typedef struct { char value[NVML_DEVICE_HOSTNAME_BUFFER_SIZE]; } nvmlHostname_v1_t;
+typedef struct { unsigned int unit, location, sublocation, extlocation, address, isParity, count; } nvmlEccSramUniqueUncorrectedErrorEntry_v1_t;
+typedef struct { unsigned int version; unsigned int entryCount; nvmlEccSramUniqueUncorrectedErrorEntry_v1_t *entries; } nvmlEccSramUniqueUncorrectedErrorCounts_v1_t;
+typedef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t nvmlEccSramUniqueUncorrectedErrorCounts_t;
+typedef enum { NVML_POWER_PROFILE_OPERATION_CLEAR=0, NVML_POWER_PROFILE_OPERATION_SET=1, NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE=2, NVML_POWER_PROFILE_OPERATION_MAX=3 } nvmlPowerProfileOperation_t;
+typedef struct { unsigned int mask[8]; } nvmlMask255_t;
+typedef struct { nvmlPowerProfileOperation_t operation; nvmlMask255_t updateProfilesMask; } nvmlWorkloadPowerProfileUpdateProfiles_v1_t;
+typedef struct { unsigned int version; unsigned long long pollMask; } nvmlRusdSettings_v1_t;
+
+
+/* Pointer-only ABI types for conservatively blocked NVML 13 APIs. */
+typedef struct nvmlBBXTimeData_v1_st nvmlBBXTimeData_v1_t;
+typedef struct nvmlRemappedRowsInfo_v2_st nvmlRemappedRowsInfo_v2_t;
+typedef struct nvmlUnrepairableMemoryStatus_v1_st nvmlUnrepairableMemoryStatus_v1_t;
+typedef unsigned int nvmlDeviceVgpuCapability_t;
+typedef struct nvmlVgpuHeterogeneousMode_st nvmlVgpuHeterogeneousMode_t;
+typedef struct nvmlVgpuSchedulerLog_st nvmlVgpuSchedulerLog_t;
+typedef struct nvmlVgpuSchedulerLogInfo_v2_st nvmlVgpuSchedulerLogInfo_v2_t;
+typedef struct nvmlVgpuSchedulerGetState_st nvmlVgpuSchedulerGetState_t;
+typedef struct nvmlVgpuSchedulerStateInfo_v2_st nvmlVgpuSchedulerStateInfo_v2_t;
+typedef struct nvmlVgpuPlacementList_st nvmlVgpuPlacementList_t;
+typedef struct nvmlPRMCounterList_v1_st nvmlPRMCounterList_v1_t;
+typedef struct nvmlPowerValue_v2_st nvmlPowerValue_v2_t;
+typedef struct nvmlVgpuSchedulerSetState_st nvmlVgpuSchedulerSetState_t;
+typedef struct nvmlVgpuSchedulerState_v2_st nvmlVgpuSchedulerState_v2_t;
+typedef struct nvmlWorkloadPowerProfileRequestedProfiles_st nvmlWorkloadPowerProfileRequestedProfiles_t;
+typedef struct nvmlActiveVgpuInstanceInfo_st nvmlActiveVgpuInstanceInfo_t;
+typedef struct nvmlVgpuTypeIdInfo_st nvmlVgpuTypeIdInfo_t;
+typedef struct nvmlVgpuSchedulerLogInfo_st nvmlVgpuSchedulerLogInfo_t;
+typedef struct nvmlVgpuSchedulerStateInfo_st nvmlVgpuSchedulerStateInfo_t;
+typedef struct nvmlVgpuCreatablePlacementInfo_st nvmlVgpuCreatablePlacementInfo_t;
+typedef struct nvmlVgpuSchedulerState_st nvmlVgpuSchedulerState_t;
+typedef struct nvmlSystemEventSetCreateRequest_st nvmlSystemEventSetCreateRequest_t;
+typedef struct nvmlSystemEventSetFreeRequest_st nvmlSystemEventSetFreeRequest_t;
+typedef struct nvmlSystemEventSetWaitRequest_st nvmlSystemEventSetWaitRequest_t;
+typedef struct nvmlSystemRegisterEventRequest_st nvmlSystemRegisterEventRequest_t;
+typedef struct nvmlVgpuTypeMaxInstance_st nvmlVgpuTypeMaxInstance_t;
 
 #endif  // HIJACK_DRIVER_SUBSET_H

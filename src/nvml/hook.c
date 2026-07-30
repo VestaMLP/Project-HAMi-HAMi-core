@@ -67,6 +67,66 @@ entry_t nvml_library_entry[] = {
     {.name = "nvmlDeviceGetHandleByPciBusId_v2"},
     {.name = "nvmlDeviceGetHandleBySerial"},
     {.name = "nvmlDeviceGetHandleByUUID"},
+    {.name = "nvmlDeviceGetHandleByUUIDV"},
+    {.name = "nvmlDeviceGetRunningProcessDetailList"},
+    {.name = "nvmlDeviceGetAccountingStats_v2"},
+    {.name = "nvmlDeviceGetGpuFabricInfoV"},
+    {.name = "nvmlDeviceGetClockOffsets"},
+    {.name = "nvmlDeviceSetClockOffsets"},
+    {.name = "nvmlDeviceGetCapabilities"},
+    {.name = "nvmlSystemGetDriverBranch"},
+    {.name = "nvmlDeviceGetAddressingMode"},
+    {.name = "nvmlDeviceGetRepairStatus"},
+    {.name = "nvmlDeviceGetPdi"},
+    {.name = "nvmlDeviceGetNvLinkInfo"},
+    {.name = "nvmlDeviceReadWritePRM_v1"},
+    {.name = "nvmlDeviceGetGpuInstanceProfileInfoByIdV"},
+    {.name = "nvmlSystemGetCPER_v1"},
+    {.name = "nvmlDeviceGetPowerMizerMode_v1"},
+    {.name = "nvmlDeviceSetPowerMizerMode_v1"},
+    {.name = "nvmlDeviceSetHostname_v1"},
+    {.name = "nvmlDeviceGetHostname_v1"},
+    {.name = "nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts"},
+    {.name = "nvmlDeviceWorkloadPowerProfileUpdateProfiles_v1"},
+    {.name = "nvmlDeviceSetRusdSettings_v1"},
+    {.name = "nvmlDeviceGetBBXTimeData_v1"},
+    {.name = "nvmlDeviceGetCurrentClocksEventReasons"},
+    {.name = "nvmlDeviceGetRemappedRows_v2"},
+    {.name = "nvmlDeviceGetSupportedClocksEventReasons"},
+    {.name = "nvmlDeviceGetUnrepairableMemoryFlag_v1"},
+    {.name = "nvmlDeviceGetVgpuCapabilities"},
+    {.name = "nvmlDeviceGetVgpuHeterogeneousMode"},
+    {.name = "nvmlDeviceGetVgpuSchedulerLog"},
+    {.name = "nvmlDeviceGetVgpuSchedulerLog_v2"},
+    {.name = "nvmlDeviceGetVgpuSchedulerState"},
+    {.name = "nvmlDeviceGetVgpuSchedulerState_v2"},
+    {.name = "nvmlDeviceGetVgpuTypeCreatablePlacements"},
+    {.name = "nvmlDeviceReadPRMCounters_v1"},
+    {.name = "nvmlDeviceSetPowerManagementLimit_v2"},
+    {.name = "nvmlDeviceSetVgpuCapabilities"},
+    {.name = "nvmlDeviceSetVgpuHeterogeneousMode"},
+    {.name = "nvmlDeviceSetVgpuSchedulerState"},
+    {.name = "nvmlDeviceSetVgpuSchedulerState_v2"},
+    {.name = "nvmlDeviceVgpuForceGspUnload"},
+    {.name = "nvmlDeviceWorkloadPowerProfileClearRequestedProfiles"},
+    {.name = "nvmlDeviceWorkloadPowerProfileSetRequestedProfiles"},
+    {.name = "nvmlGpuInstanceGetActiveVgpus"},
+    {.name = "nvmlGpuInstanceGetCreatableVgpus"},
+    {.name = "nvmlGpuInstanceGetVgpuHeterogeneousMode"},
+    {.name = "nvmlGpuInstanceGetVgpuSchedulerLog"},
+    {.name = "nvmlGpuInstanceGetVgpuSchedulerLog_v2"},
+    {.name = "nvmlGpuInstanceGetVgpuSchedulerState"},
+    {.name = "nvmlGpuInstanceGetVgpuSchedulerState_v2"},
+    {.name = "nvmlGpuInstanceGetVgpuTypeCreatablePlacements"},
+    {.name = "nvmlGpuInstanceSetVgpuHeterogeneousMode"},
+    {.name = "nvmlGpuInstanceSetVgpuSchedulerState"},
+    {.name = "nvmlGpuInstanceSetVgpuSchedulerState_v2"},
+    {.name = "nvmlSystemEventSetCreate"},
+    {.name = "nvmlSystemEventSetFree"},
+    {.name = "nvmlSystemEventSetWait"},
+    {.name = "nvmlSystemRegisterEvents"},
+    {.name = "nvmlVgpuTypeGetMaxInstancesPerGpuInstance"},
+
     {.name = "nvmlDeviceGetIndex"},
     {.name = "nvmlDeviceGetInforomConfigurationChecksum"},
     {.name = "nvmlDeviceGetInforomImageVersion"},
@@ -249,6 +309,10 @@ entry_t nvml_library_entry[] = {
     {.name = "nvmlComputeInstanceGetInfo_v2"},
     {.name = "nvmlDeviceGetComputeRunningProcesses_v2"},
     {.name = "nvmlDeviceGetGraphicsRunningProcesses_v2"},
+    {.name = "nvmlDeviceGetComputeRunningProcesses_v3"},
+    {.name = "nvmlDeviceGetGraphicsRunningProcesses_v3"},
+    {.name = "nvmlDeviceGetMPSComputeRunningProcesses_v3"},
+    {.name = "nvmlDeviceGetMPSComputeRunningProcesses_v2"},
     {.name = "nvmlDeviceSetTemperatureThreshold"},
     //{.name = "nvmlRetry_NvRmControl"},
     {.name = "nvmlVgpuInstanceGetGpuInstanceId"},
@@ -481,3 +545,88 @@ nvmlReturn_t nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid,
                          length);
     return res;
 }
+
+
+nvmlReturn_t nvmlDeviceGetHandleByUUIDV(const nvmlUUID_t *uuid, nvmlDevice_t *device) {
+    if (uuid == NULL || device == NULL) return NVML_ERROR_INVALID_ARGUMENT;
+    pthread_once(&init_virtual_map_pre_flag, (void (*)(void))nvml_preInit);
+    pthread_once(&init_virtual_map_post_flag, (void (*)(void))nvml_postInit);
+    if (uuid->version != (unsigned int)(sizeof(nvmlUUID_v1_t) | (1U << 24)) ||
+        (uuid->type != 1U && uuid->type != 2U)) return NVML_ERROR_INVALID_ARGUMENT;
+    unsigned int count = virtual_nvml_devices > 0 ? (unsigned int)virtual_nvml_devices : 0U;
+    for (unsigned int i = 0; i < count; ++i) {
+        nvmlDevice_t candidate;
+        nvmlUUID_t candidateUuid = {0};
+        if (NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetHandleByIndex_v2, cuda_to_nvml_map(i), &candidate) == NVML_SUCCESS &&
+            NVML_OVERRIDE_CALL(nvml_library_entry, nvmlDeviceGetUUID, candidate, candidateUuid.value.str, sizeof(candidateUuid.value.str)) == NVML_SUCCESS &&
+            ((uuid->type == 1U && strncmp(uuid->value.str, candidateUuid.value.str, NVML_DEVICE_UUID_ASCII_LEN) == 0) ||
+             (uuid->type == 2U && memcmp(uuid->value.bytes, candidateUuid.value.bytes, NVML_DEVICE_UUID_BINARY_LEN) == 0))) { *device = candidate; return NVML_SUCCESS; }
+    }
+    return NVML_ERROR_NOT_FOUND;
+}
+nvmlReturn_t nvmlDeviceGetRunningProcessDetailList(nvmlDevice_t device, nvmlProcessDetailList_t *plist) { /* Process namespace/filtering is not implemented. */ return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetAccountingStats_v2(nvmlDevice_t device, nvmlAccountingStats_v2_t *stats) { /* Accounting virtualization cannot populate v2 safely. */ return NVML_ERROR_NOT_SUPPORTED; }
+
+nvmlReturn_t nvmlDeviceGetProcessesUtilizationInfo(nvmlDevice_t device, nvmlProcessesUtilizationInfo_t *processesUtilInfo) { (void)device; (void)processesUtilInfo; return NVML_ERROR_NOT_SUPPORTED; }
+
+/* NVML 13 additions: conservative virtualization policy. */
+nvmlReturn_t nvmlDeviceGetGpuFabricInfoV(nvmlDevice_t device, nvmlGpuFabricInfoV_t *gpuFabricInfo) { (void)device; (void)gpuFabricInfo; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t *info) { (void)device; (void)info; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceSetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t *info) { (void)device; (void)info; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapabilities_t *caps) { (void)device; (void)caps; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlSystemGetDriverBranch(nvmlSystemDriverBranchInfo_t *branchInfo, unsigned int length) { return NVML_OVERRIDE_CALL(nvml_library_entry, nvmlSystemGetDriverBranch, branchInfo, length); }
+nvmlReturn_t nvmlDeviceGetAddressingMode(nvmlDevice_t device, nvmlDeviceAddressingMode_t *mode) { (void)device; (void)mode; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetRepairStatus(nvmlDevice_t device, nvmlRepairStatus_t *repairStatus) { (void)device; (void)repairStatus; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetPdi(nvmlDevice_t device, nvmlPdi_t *pdi) { (void)device; (void)pdi; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetNvLinkInfo(nvmlDevice_t device, nvmlNvLinkInfo_t *info) { (void)device; (void)info; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceReadWritePRM_v1(nvmlDevice_t device, nvmlPRMTLV_v1_t *buffer) { (void)device; (void)buffer; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstanceProfileInfo_v2_t *info) { (void)device; (void)profileId; (void)info; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlSystemGetCPER_v1(nvmlGetCPER_v1_t *cper) { (void)cper; return NVML_ERROR_NOT_SUPPORTED; }
+
+/* CUDA 13.1/13.2 additions: conservative virtualization policy. */
+nvmlReturn_t nvmlDeviceGetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t *mode) { (void)device; (void)mode; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceSetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t *mode) { (void)device; (void)mode; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceSetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t *hostname) { (void)device; (void)hostname; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t *hostname) { (void)device; (void)hostname; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t device, nvmlEccSramUniqueUncorrectedErrorCounts_t *counts) { (void)device; (void)counts; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceWorkloadPowerProfileUpdateProfiles_v1(nvmlDevice_t device, nvmlWorkloadPowerProfileUpdateProfiles_v1_t *profiles) { (void)device; (void)profiles; return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSettings_v1_t *settings) { (void)device; (void)settings; return NVML_ERROR_NOT_SUPPORTED; }
+
+/* API 13 vGPU, PRM, power, and system-event APIs expose global or privileged state. */
+nvmlReturn_t nvmlDeviceGetBBXTimeData_v1(nvmlDevice_t device, nvmlBBXTimeData_v1_t *timeData) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetCurrentClocksEventReasons(nvmlDevice_t device, unsigned long long *clocksEventReasons) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetRemappedRows_v2(nvmlDevice_t device, nvmlRemappedRowsInfo_v2_t *info) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetSupportedClocksEventReasons(nvmlDevice_t device, unsigned long long *supportedClocksEventReasons) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t *unrepairableMemoryStatus) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, unsigned int *capResult) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetVgpuHeterogeneousMode(nvmlDevice_t device, nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetVgpuSchedulerLog(nvmlDevice_t device, nvmlVgpuSchedulerLog_t *pSchedulerLog) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetVgpuSchedulerLog_v2(nvmlDevice_t device, nvmlVgpuSchedulerLogInfo_v2_t *pSchedulerLogInfo) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerGetState_t *pSchedulerState) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerStateInfo_v2_t *pSchedulerStateInfo) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceGetVgpuTypeCreatablePlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t *pPlacementList) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t *counterList) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceSetPowerManagementLimit_v2(nvmlDevice_t device, nvmlPowerValue_v2_t *powerValue) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceSetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, nvmlEnableState_t state) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceSetVgpuHeterogeneousMode(nvmlDevice_t device, const nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceSetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerSetState_t *pSchedulerState) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceSetVgpuSchedulerState_v2(nvmlDevice_t device, nvmlVgpuSchedulerState_v2_t *pSchedulerState) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceVgpuForceGspUnload(nvmlDevice_t device) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t *requestedProfiles) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlDeviceWorkloadPowerProfileSetRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t *requestedProfiles) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceGetActiveVgpus(nvmlGpuInstance_t gpuInstance, nvmlActiveVgpuInstanceInfo_t *pVgpuInstanceInfo) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceGetCreatableVgpus(nvmlGpuInstance_t gpuInstance, nvmlVgpuTypeIdInfo_t *pVgpus) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceGetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerLog(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_t *pSchedulerLogInfo) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerLog_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_v2_t *pSchedulerLogInfo) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_t *pSchedulerStateInfo) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_v2_t *pSchedulerStateInfo) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceGetVgpuTypeCreatablePlacements(nvmlGpuInstance_t gpuInstance, nvmlVgpuCreatablePlacementInfo_t *pCreatablePlacementInfo) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceSetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, const nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_t *pScheduler) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState_v2(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_v2_t *pSchedulerState) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlSystemEventSetCreate(nvmlSystemEventSetCreateRequest_t *request) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlSystemEventSetFree(nvmlSystemEventSetFreeRequest_t *request) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlSystemEventSetWait(nvmlSystemEventSetWaitRequest_t *request) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlSystemRegisterEvents(nvmlSystemRegisterEventRequest_t *request) { return NVML_ERROR_NOT_SUPPORTED; }
+nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerGpuInstance(nvmlVgpuTypeMaxInstance_t *pMaxInstance) { return NVML_ERROR_NOT_SUPPORTED; }

@@ -101,3 +101,14 @@ CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int v
     LOG_DEBUG("cuFuncSetAttribute");
     return CUDA_OVERRIDE_CALL(cuda_library_entry,cuFuncSetAttribute,hfunc,attrib,value);
 }
+
+CUresult CUDAAPI cuFuncGetParamCount(CUfunction func, size_t *count) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuFuncGetParamCount, func, count); }
+CUresult CUDAAPI cuKernelGetParamCount(CUkernel kernel, size_t *count) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuKernelGetParamCount, kernel, count); }
+CUresult CUDAAPI cuCoredumpRegisterStartCallback(CUcoredumpStatusCallback callback, void *userData, CUcoredumpCallbackHandle *out) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuCoredumpRegisterStartCallback, callback, userData, out); }
+CUresult CUDAAPI cuCoredumpRegisterCompleteCallback(CUcoredumpStatusCallback callback, void *userData, CUcoredumpCallbackHandle *out) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuCoredumpRegisterCompleteCallback, callback, userData, out); }
+CUresult CUDAAPI cuCoredumpDeregisterStartCallback(CUcoredumpCallbackHandle callback) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuCoredumpDeregisterStartCallback, callback); }
+CUresult CUDAAPI cuCoredumpDeregisterCompleteCallback(CUcoredumpCallbackHandle callback) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuCoredumpDeregisterCompleteCallback, callback); }
+#undef cuLaunchHostFunc
+CUresult CUDAAPI cuLaunchHostFunc(CUstream stream, CUhostFn fn, void *userData) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLaunchHostFunc, stream, fn, userData); }
+CUresult CUDAAPI cuLaunchHostFunc_ptsz(CUstream stream, CUhostFn fn, void *userData) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLaunchHostFunc_ptsz, stream, fn, userData); }
+CUresult CUDAAPI cuLaunchHostFunc_v2(CUstream stream, CUhostFn fn, void *userData, unsigned int syncMode) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLaunchHostFunc_v2, stream, fn, userData, syncMode); }

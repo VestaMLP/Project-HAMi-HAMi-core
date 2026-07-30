@@ -265,6 +265,69 @@ typedef enum {
     CUDA_OVERRIDE_ENUM(cuGraphExecDestroy),
     CUDA_OVERRIDE_ENUM(cuGraphDestroy),
 
+    CUDA_OVERRIDE_ENUM(cuCtxGetDevice_v2),
+    CUDA_OVERRIDE_ENUM(cuCtxSynchronize_v2),
+    CUDA_OVERRIDE_ENUM(cuDeviceGetHostAtomicCapabilities),
+    CUDA_OVERRIDE_ENUM(cuDeviceGetP2PAtomicCapabilities),
+    CUDA_OVERRIDE_ENUM(cuGraphNodeGetContainingGraph),
+    CUDA_OVERRIDE_ENUM(cuGraphNodeGetLocalId),
+    CUDA_OVERRIDE_ENUM(cuGraphNodeGetToolsId),
+    CUDA_OVERRIDE_ENUM(cuGraphGetId),
+    CUDA_OVERRIDE_ENUM(cuGraphExecGetId),
+    CUDA_OVERRIDE_ENUM(cuFuncGetParamCount),
+    CUDA_OVERRIDE_ENUM(cuKernelGetParamCount),
+    CUDA_OVERRIDE_ENUM(cuGraphNodeGetParams),
+    CUDA_OVERRIDE_ENUM(cuCoredumpRegisterStartCallback),
+    CUDA_OVERRIDE_ENUM(cuCoredumpRegisterCompleteCallback),
+    CUDA_OVERRIDE_ENUM(cuCoredumpDeregisterStartCallback),
+    CUDA_OVERRIDE_ENUM(cuCoredumpDeregisterCompleteCallback),
+    CUDA_OVERRIDE_ENUM(cuLaunchHostFunc),
+    CUDA_OVERRIDE_ENUM(cuLaunchHostFunc_ptsz),
+    CUDA_OVERRIDE_ENUM(cuLaunchHostFunc_v2),
+    CUDA_OVERRIDE_ENUM(cuMemcpyBatchAsync),
+    CUDA_OVERRIDE_ENUM(cuMemcpy3DBatchAsync),
+    CUDA_OVERRIDE_ENUM(cuMemcpyBatchAsync_ptsz),
+    CUDA_OVERRIDE_ENUM(cuMemcpy3DBatchAsync_ptsz),
+    CUDA_OVERRIDE_ENUM(cuMemcpyWithAttributesAsync_ptsz),
+    CUDA_OVERRIDE_ENUM(cuMemcpy3DWithAttributesAsync_ptsz),
+    CUDA_OVERRIDE_ENUM(cuMemPrefetchBatchAsync_ptsz),
+    CUDA_OVERRIDE_ENUM(cuMemDiscardBatchAsync_ptsz),
+    CUDA_OVERRIDE_ENUM(cuMemDiscardAndPrefetchBatchAsync_ptsz),
+    CUDA_OVERRIDE_ENUM(cuMemcpyBatchAsync_v2),
+    CUDA_OVERRIDE_ENUM(cuMemcpy3DBatchAsync_v2),
+    CUDA_OVERRIDE_ENUM(cuMemcpyWithAttributesAsync),
+    CUDA_OVERRIDE_ENUM(cuMemcpy3DWithAttributesAsync),
+    CUDA_OVERRIDE_ENUM(cuMemPrefetchBatchAsync),
+    CUDA_OVERRIDE_ENUM(cuMemDiscardBatchAsync),
+    CUDA_OVERRIDE_ENUM(cuMemDiscardAndPrefetchBatchAsync),
+    CUDA_OVERRIDE_ENUM(cuMemGetDefaultMemPool),
+    CUDA_OVERRIDE_ENUM(cuMemGetMemPool),
+    CUDA_OVERRIDE_ENUM(cuMemSetMemPool),
+    CUDA_OVERRIDE_ENUM(cuMulticastBindMem),
+    CUDA_OVERRIDE_ENUM(cuMulticastBindAddr),
+    CUDA_OVERRIDE_ENUM(cuMulticastBindMem_v2),
+    CUDA_OVERRIDE_ENUM(cuMulticastBindAddr_v2),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointIdReserve),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointIdRelease),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointCreate),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointAddDevice),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointDestroy),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointBindAddr),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointBindMem),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointUnbind),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointExport),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointImport),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointGetLimits),
+    CUDA_OVERRIDE_ENUM(cuLogicalEndpointQuery),
+    CUDA_OVERRIDE_ENUM(cuStreamGetDevResource),
+    CUDA_OVERRIDE_ENUM(cuStreamGetDevResource_ptsz),
+    CUDA_OVERRIDE_ENUM(cuDevSmResourceSplit),
+    CUDA_OVERRIDE_ENUM(cuStreamBeginCaptureToCig),
+    CUDA_OVERRIDE_ENUM(cuStreamBeginCaptureToCig_ptsz),
+    CUDA_OVERRIDE_ENUM(cuStreamEndCaptureToCig),
+    CUDA_OVERRIDE_ENUM(cuStreamEndCaptureToCig_ptsz),
+    CUDA_OVERRIDE_ENUM(cuStreamBeginRecaptureToGraph),
+    CUDA_OVERRIDE_ENUM(cuStreamBeginRecaptureToGraph_ptsz),
     CUDA_OVERRIDE_ENUM(cuGetProcAddress),
     CUDA_OVERRIDE_ENUM(cuGetProcAddress_v2),
     CUDA_ENTRY_END
@@ -278,4 +341,20 @@ extern cuda_entry_t cuda_library_entry[];
 CUresult cuGetProcAddress( const char* symbol, void** pfn, int  cudaVersion, cuuint64_t flags );
 #undef cuGraphInstantiate
 CUresult cuGraphInstantiate(CUgraphExec *phGraphExec, CUgraph hGraph, CUgraphNode *phErrorNode, char *logBuffer, size_t bufferSize);
+
+#undef cuLaunchHostFunc
+CUresult CUDAAPI cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void *userData);
+CUresult CUDAAPI cuLaunchHostFunc_ptsz(CUstream hStream, CUhostFn fn, void *userData);
+CUresult CUDAAPI cuMemcpyBatchAsync_ptsz(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrsIdxs, size_t numAttrs, size_t *failIdx, CUstream hStream);
+CUresult CUDAAPI cuMemcpy3DBatchAsync_ptsz(size_t numOps, CUDA_MEMCPY3D_BATCH_OP *opList, size_t *failIdx, unsigned long long flags, CUstream hStream);
+CUresult CUDAAPI cuMemcpyWithAttributesAsync_ptsz(CUdeviceptr dst, CUdeviceptr src, size_t size, CUmemcpyAttributes *attr, CUstream hStream);
+CUresult CUDAAPI cuMemcpy3DWithAttributesAsync_ptsz(CUDA_MEMCPY3D_BATCH_OP *op, unsigned long long flags, CUstream hStream);
+CUresult CUDAAPI cuMemPrefetchBatchAsync_ptsz(CUdeviceptr *dptrs, size_t *sizes, size_t count, CUmemLocation *locs, size_t *idxs, size_t numLocs, unsigned long long flags, CUstream stream);
+CUresult CUDAAPI cuMemDiscardBatchAsync_ptsz(CUdeviceptr *dptrs, size_t *sizes, size_t count, unsigned long long flags, CUstream stream);
+CUresult CUDAAPI cuMemDiscardAndPrefetchBatchAsync_ptsz(CUdeviceptr *dptrs, size_t *sizes, size_t count, CUmemLocation *locs, size_t *idxs, size_t numLocs, unsigned long long flags, CUstream stream);
+
+CUresult CUDAAPI cuStreamGetDevResource_ptsz(CUstream stream, CUdevResource *result, CUdevResourceType type);
+CUresult CUDAAPI cuStreamBeginCaptureToCig_ptsz(CUstream stream, CUstreamCigCaptureParams *params);
+CUresult CUDAAPI cuStreamEndCaptureToCig_ptsz(CUstream stream);
+CUresult CUDAAPI cuStreamBeginRecaptureToGraph_ptsz(CUstream stream, CUstreamCaptureMode mode, CUgraph graph, CUgraphRecaptureCallback callback, void *userData);
 

@@ -231,6 +231,69 @@ cuda_entry_t cuda_library_entry[] = {
     {.name = "cuGraphExecDestroy"},
     {.name = "cuGraphDestroy"},
 
+    {.name = "cuCtxGetDevice_v2"},
+    {.name = "cuCtxSynchronize_v2"},
+    {.name = "cuDeviceGetHostAtomicCapabilities"},
+    {.name = "cuDeviceGetP2PAtomicCapabilities"},
+    {.name = "cuGraphNodeGetContainingGraph"},
+    {.name = "cuGraphNodeGetLocalId"},
+    {.name = "cuGraphNodeGetToolsId"},
+    {.name = "cuGraphGetId"},
+    {.name = "cuGraphExecGetId"},
+    {.name = "cuFuncGetParamCount"},
+    {.name = "cuKernelGetParamCount"},
+    {.name = "cuGraphNodeGetParams"},
+    {.name = "cuCoredumpRegisterStartCallback"},
+    {.name = "cuCoredumpRegisterCompleteCallback"},
+    {.name = "cuCoredumpDeregisterStartCallback"},
+    {.name = "cuCoredumpDeregisterCompleteCallback"},
+    {.name = "cuLaunchHostFunc"},
+    {.name = "cuLaunchHostFunc_ptsz"},
+    {.name = "cuLaunchHostFunc_v2"},
+    {.name = "cuMemcpyBatchAsync"},
+    {.name = "cuMemcpy3DBatchAsync"},
+    {.name = "cuMemcpyBatchAsync_ptsz"},
+    {.name = "cuMemcpy3DBatchAsync_ptsz"},
+    {.name = "cuMemcpyWithAttributesAsync_ptsz"},
+    {.name = "cuMemcpy3DWithAttributesAsync_ptsz"},
+    {.name = "cuMemPrefetchBatchAsync_ptsz"},
+    {.name = "cuMemDiscardBatchAsync_ptsz"},
+    {.name = "cuMemDiscardAndPrefetchBatchAsync_ptsz"},
+    {.name = "cuMemcpyBatchAsync_v2"},
+    {.name = "cuMemcpy3DBatchAsync_v2"},
+    {.name = "cuMemcpyWithAttributesAsync"},
+    {.name = "cuMemcpy3DWithAttributesAsync"},
+    {.name = "cuMemPrefetchBatchAsync"},
+    {.name = "cuMemDiscardBatchAsync"},
+    {.name = "cuMemDiscardAndPrefetchBatchAsync"},
+    {.name = "cuMemGetDefaultMemPool"},
+    {.name = "cuMemGetMemPool"},
+    {.name = "cuMemSetMemPool"},
+    {.name = "cuMulticastBindMem"},
+    {.name = "cuMulticastBindAddr"},
+    {.name = "cuMulticastBindMem_v2"},
+    {.name = "cuMulticastBindAddr_v2"},
+    {.name = "cuLogicalEndpointIdReserve"},
+    {.name = "cuLogicalEndpointIdRelease"},
+    {.name = "cuLogicalEndpointCreate"},
+    {.name = "cuLogicalEndpointAddDevice"},
+    {.name = "cuLogicalEndpointDestroy"},
+    {.name = "cuLogicalEndpointBindAddr"},
+    {.name = "cuLogicalEndpointBindMem"},
+    {.name = "cuLogicalEndpointUnbind"},
+    {.name = "cuLogicalEndpointExport"},
+    {.name = "cuLogicalEndpointImport"},
+    {.name = "cuLogicalEndpointGetLimits"},
+    {.name = "cuLogicalEndpointQuery"},
+    {.name = "cuStreamGetDevResource"},
+    {.name = "cuStreamGetDevResource_ptsz"},
+    {.name = "cuDevSmResourceSplit"},
+    {.name = "cuStreamBeginCaptureToCig"},
+    {.name = "cuStreamBeginCaptureToCig_ptsz"},
+    {.name = "cuStreamEndCaptureToCig"},
+    {.name = "cuStreamEndCaptureToCig_ptsz"},
+    {.name = "cuStreamBeginRecaptureToGraph"},
+    {.name = "cuStreamBeginRecaptureToGraph_ptsz"},
     {.name = "cuGetProcAddress"},
     {.name = "cuGetProcAddress_v2"},
 };
@@ -344,11 +407,25 @@ void *find_symbols_in_table_by_cudaversion(const char *symbol,int  cudaVersion) 
 }
 
 
-CUresult (*cuGetProcAddress_real) ( const char* symbol, void** pfn, int  cudaVersion, cuuint64_t flags ); 
+CUresult (*cuGetProcAddress_real) ( const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags );
+CUresult (*cuGetProcAddress_v2_real) ( const char* symbol, void** pfn, int cudaVersion, cuuint64_t flags, CUdriverProcAddressQueryResult *symbolStatus );
+
+static void *find_proc_address_hook(const char *symbol, int cudaVersion,
+                                    cuuint64_t flags) {
+    /* PTDS requests must only use exact _ptsz wrappers. Falling back to a
+     * legacy-stream wrapper is incorrect, while returning NULL lets the driver
+     * handle ordinary APIs that HAMi does not expose with PTDS semantics. */
+    if ((flags & CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM) != 0) {
+        char ptsz_symbol[500];
+        if (snprintf(ptsz_symbol, sizeof(ptsz_symbol), "%s_ptsz", symbol) >= sizeof(ptsz_symbol)) return NULL;
+        return __dlsym_hook_section(NULL, ptsz_symbol);
+    }
+    return find_symbols_in_table_by_cudaversion(symbol, cudaVersion);
+}
 
 CUresult _cuGetProcAddress ( const char* symbol, void** pfn, int  cudaVersion, cuuint64_t flags ) {
     LOG_INFO("into _cuGetProcAddress symbol=%s:%d",symbol,cudaVersion);
-    *pfn = find_symbols_in_table_by_cudaversion(symbol, cudaVersion);
+    *pfn = find_proc_address_hook(symbol, cudaVersion, flags);
     if (*pfn==NULL){
         CUresult res = CUDA_OVERRIDE_CALL(cuda_library_entry,cuGetProcAddress,symbol,pfn,cudaVersion,flags);
         return res;
@@ -360,7 +437,7 @@ CUresult _cuGetProcAddress ( const char* symbol, void** pfn, int  cudaVersion, c
 
 CUresult cuGetProcAddress ( const char* symbol, void** pfn, int  cudaVersion, cuuint64_t flags ) {
     LOG_INFO("into cuGetProcAddress symbol=%s:%d",symbol,cudaVersion);
-    *pfn = find_symbols_in_table_by_cudaversion(symbol, cudaVersion);
+    *pfn = find_proc_address_hook(symbol, cudaVersion, flags);
     if (strcmp(symbol,"cuGetProcAddress")==0) {
         CUresult res = CUDA_OVERRIDE_CALL(cuda_library_entry,cuGetProcAddress,symbol,pfn,cudaVersion,flags); 
         if (res==CUDA_SUCCESS) {
@@ -380,23 +457,26 @@ CUresult cuGetProcAddress ( const char* symbol, void** pfn, int  cudaVersion, cu
 
 CUresult _cuGetProcAddress_v2(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags, CUdriverProcAddressQueryResult *symbolStatus){
     LOG_INFO("into _cuGetProcAddress_v2 symbol=%s:%d",symbol,cudaVersion);
-    *pfn = find_symbols_in_table_by_cudaversion(symbol, cudaVersion);
+    *pfn = find_proc_address_hook(symbol, cudaVersion, flags);
     if (*pfn==NULL){
         CUresult res = CUDA_OVERRIDE_CALL(cuda_library_entry,cuGetProcAddress_v2,symbol,pfn,cudaVersion,flags,symbolStatus);
         return res;
     }else{
         LOG_DEBUG("found symbol %s",symbol);
+        if (symbolStatus != NULL) {
+            *symbolStatus = CU_GET_PROC_ADDRESS_SUCCESS;
+        }
         return CUDA_SUCCESS;
-    } 
+    }
 }
 
 CUresult cuGetProcAddress_v2(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags, CUdriverProcAddressQueryResult *symbolStatus){
     LOG_INFO("into cuGetProcAddress_v2 symbol=%s:%d",symbol,cudaVersion);
-    *pfn = find_symbols_in_table_by_cudaversion(symbol, cudaVersion);
+    *pfn = find_proc_address_hook(symbol, cudaVersion, flags);
     if (strcmp(symbol,"cuGetProcAddress_v2")==0) {
         CUresult res = CUDA_OVERRIDE_CALL(cuda_library_entry,cuGetProcAddress_v2,symbol,pfn,cudaVersion,flags,symbolStatus); 
         if (res==CUDA_SUCCESS) {
-            cuGetProcAddress_real=*pfn;
+            cuGetProcAddress_v2_real=*pfn;
             *pfn=_cuGetProcAddress_v2;
         }
         return res;
@@ -406,7 +486,9 @@ CUresult cuGetProcAddress_v2(const char *symbol, void **pfn, int cudaVersion, cu
         return res;
     }else{
         LOG_DEBUG("found symbol %s",symbol);
-        void *optr;
-        return CUDA_OVERRIDE_CALL(cuda_library_entry,cuGetProcAddress_v2,symbol,&optr,cudaVersion,flags,symbolStatus);
-    } 
+        if (symbolStatus != NULL) {
+            *symbolStatus = CU_GET_PROC_ADDRESS_SUCCESS;
+        }
+        return CUDA_SUCCESS;
+    }
 }

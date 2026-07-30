@@ -278,3 +278,10 @@ CUresult cuGraphDestroy(CUgraph hGraph) {
 	LOG_DEBUG("cuGraphDestroy");
 	return CUDA_OVERRIDE_CALL(cuda_library_entry,cuGraphDestroy,hGraph);
 }
+
+CUresult CUDAAPI cuGraphNodeGetContainingGraph(CUgraphNode node, CUgraph *graph) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuGraphNodeGetContainingGraph, node, graph); }
+CUresult CUDAAPI cuGraphNodeGetLocalId(CUgraphNode node, unsigned int *id) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuGraphNodeGetLocalId, node, id); }
+CUresult CUDAAPI cuGraphNodeGetToolsId(CUgraphNode node, unsigned long long *id) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuGraphNodeGetToolsId, node, id); }
+CUresult CUDAAPI cuGraphGetId(CUgraph graph, unsigned int *id) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuGraphGetId, graph, id); }
+CUresult CUDAAPI cuGraphExecGetId(CUgraphExec exec, unsigned int *id) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuGraphExecGetId, exec, id); }
+CUresult CUDAAPI cuGraphNodeGetParams(CUgraphNode node, CUgraphNodeParams *params) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuGraphNodeGetParams, node, params); }

@@ -123,3 +123,24 @@ CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUf
    LOG_DEBUG("cuFlushGPUDirectRDMAWrites");
    return CUDA_OVERRIDE_CALL(cuda_library_entry,cuFlushGPUDirectRDMAWrites,target,scope);
 }
+
+static CUresult map_cuda_device(CUdevice device, CUdevice *physical) {
+    if (device < 0 || device >= CUDA_DEVICE_MAX_COUNT) return CUDA_ERROR_INVALID_DEVICE;
+    *physical = (CUdevice)cuda_to_nvml_map((unsigned int)device);
+    return CUDA_SUCCESS;
+}
+
+CUresult CUDAAPI cuDeviceGetHostAtomicCapabilities(unsigned int *capabilities, const CUatomicOperation *operations, unsigned int count, CUdevice dev) {
+    CUdevice physical;
+    CUresult result = map_cuda_device(dev, &physical);
+    if (result != CUDA_SUCCESS) return result;
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuDeviceGetHostAtomicCapabilities, capabilities, operations, count, physical);
+}
+CUresult CUDAAPI cuDeviceGetP2PAtomicCapabilities(unsigned int *capabilities, const CUatomicOperation *operations, unsigned int count, CUdevice srcDevice, CUdevice dstDevice) {
+    CUdevice src, dst;
+    CUresult result = map_cuda_device(srcDevice, &src);
+    if (result != CUDA_SUCCESS) return result;
+    result = map_cuda_device(dstDevice, &dst);
+    if (result != CUDA_SUCCESS) return result;
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuDeviceGetP2PAtomicCapabilities, capabilities, operations, count, src, dst);
+}

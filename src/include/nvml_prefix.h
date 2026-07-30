@@ -14,8 +14,6 @@
 #define nvmlDeviceGetGridLicensableFeatures     nvmlDeviceGetGridLicensableFeatures_v3
 #define nvmlEventSetWait                        nvmlEventSetWait_v2
 #define nvmlDeviceGetAttributes                 nvmlDeviceGetAttributes_v2
-#define nvmlDeviceGetComputeRunningProcesses    nvmlDeviceGetComputeRunningProcesses_v2
-#define nvmlDeviceGetGraphicsRunningProcesses   nvmlDeviceGetGraphicsRunningProcesses_v2
 #endif
 
 typedef struct {
