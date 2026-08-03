@@ -843,7 +843,6 @@ CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem) {
 
 /* CUDA 13.x APIs. High-risk resource binding/endpoints fail closed until
  * HAMi has an accounting and isolation model for those resources. */
-#define FORWARD0(name) CUresult CUDAAPI name(void) { return CUDA_OVERRIDE_CALL(cuda_library_entry, name); }
 
 static CUresult map_mem_location(const CUmemLocation *location, CUmemLocation *mapped) {
     if (location == NULL) return CUDA_ERROR_INVALID_VALUE;
@@ -872,48 +871,402 @@ CUresult CUDAAPI cuMemSetMemPool(CUmemLocation *location, CUmemAllocationType ty
     if (result != CUDA_SUCCESS) return result;
     return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemSetMemPool, &mapped, type, pool);
 }
+/* CUDA headers redirect these legacy names to their v2/PTSZ variants.
+ * Undefine the macros so the wrappers below export the exact legacy symbols. */
 #undef cuMemcpyBatchAsync
 #undef cuMemcpy3DBatchAsync
-CUresult CUDAAPI cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrIdxs, size_t numAttrs, size_t *failIdx, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpyBatchAsync, dsts, srcs, sizes, count, attrs, attrIdxs, numAttrs, failIdx, hStream); }
-CUresult CUDAAPI cuMemcpy3DBatchAsync(size_t numOps, CUDA_MEMCPY3D_BATCH_OP *opList, size_t *failIdx, unsigned long long flags, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpy3DBatchAsync, numOps, opList, failIdx, flags, hStream); }
-CUresult CUDAAPI cuMemcpyBatchAsync_v2(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrIdxs, size_t numAttrs, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpyBatchAsync_v2, dsts, srcs, sizes, count, attrs, attrIdxs, numAttrs, hStream); }
-CUresult CUDAAPI cuMemcpy3DBatchAsync_v2(size_t numOps, CUDA_MEMCPY3D_BATCH_OP *opList, unsigned long long flags, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpy3DBatchAsync_v2, numOps, opList, flags, hStream); }
-CUresult CUDAAPI cuMemcpyWithAttributesAsync(CUdeviceptr dst, CUdeviceptr src, size_t size, CUmemcpyAttributes *attr, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpyWithAttributesAsync, dst, src, size, attr, hStream); }
-CUresult CUDAAPI cuMemcpy3DWithAttributesAsync(CUDA_MEMCPY3D_BATCH_OP *op, unsigned long long flags, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpy3DWithAttributesAsync, op, flags, hStream); }
-CUresult CUDAAPI cuMemPrefetchBatchAsync(CUdeviceptr *dptrs, size_t *sizes, size_t count, CUmemLocation *locs, size_t *idxs, size_t numLocs, unsigned long long flags, CUstream stream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemPrefetchBatchAsync, dptrs, sizes, count, locs, idxs, numLocs, flags, stream); }
-CUresult CUDAAPI cuMemDiscardBatchAsync(CUdeviceptr *dptrs, size_t *sizes, size_t count, unsigned long long flags, CUstream stream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemDiscardBatchAsync, dptrs, sizes, count, flags, stream); }
-CUresult CUDAAPI cuMemDiscardAndPrefetchBatchAsync(CUdeviceptr *dptrs, size_t *sizes, size_t count, CUmemLocation *locs, size_t *idxs, size_t numLocs, unsigned long long flags, CUstream stream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemDiscardAndPrefetchBatchAsync, dptrs, sizes, count, locs, idxs, numLocs, flags, stream); }
-CUresult CUDAAPI cuMemcpyBatchAsync_ptsz(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrIdxs, size_t numAttrs, size_t *failIdx, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpyBatchAsync_ptsz, dsts, srcs, sizes, count, attrs, attrIdxs, numAttrs, failIdx, hStream); }
-CUresult CUDAAPI cuMemcpy3DBatchAsync_ptsz(size_t numOps, CUDA_MEMCPY3D_BATCH_OP *opList, size_t *failIdx, unsigned long long flags, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpy3DBatchAsync_ptsz, numOps, opList, failIdx, flags, hStream); }
-CUresult CUDAAPI cuMemcpyWithAttributesAsync_ptsz(CUdeviceptr dst, CUdeviceptr src, size_t size, CUmemcpyAttributes *attr, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpyWithAttributesAsync_ptsz, dst, src, size, attr, hStream); }
-CUresult CUDAAPI cuMemcpy3DWithAttributesAsync_ptsz(CUDA_MEMCPY3D_BATCH_OP *op, unsigned long long flags, CUstream hStream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpy3DWithAttributesAsync_ptsz, op, flags, hStream); }
-CUresult CUDAAPI cuMemPrefetchBatchAsync_ptsz(CUdeviceptr *dptrs, size_t *sizes, size_t count, CUmemLocation *locs, size_t *idxs, size_t numLocs, unsigned long long flags, CUstream stream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemPrefetchBatchAsync_ptsz, dptrs, sizes, count, locs, idxs, numLocs, flags, stream); }
-CUresult CUDAAPI cuMemDiscardBatchAsync_ptsz(CUdeviceptr *dptrs, size_t *sizes, size_t count, unsigned long long flags, CUstream stream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemDiscardBatchAsync_ptsz, dptrs, sizes, count, flags, stream); }
-CUresult CUDAAPI cuMemDiscardAndPrefetchBatchAsync_ptsz(CUdeviceptr *dptrs, size_t *sizes, size_t count, CUmemLocation *locs, size_t *idxs, size_t numLocs, unsigned long long flags, CUstream stream) { return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemDiscardAndPrefetchBatchAsync_ptsz, dptrs, sizes, count, locs, idxs, numLocs, flags, stream); }
-CUresult CUDAAPI cuMulticastBindMem(CUmemGenericAllocationHandle a, size_t o, CUmemGenericAllocationHandle m, size_t mo, size_t s, unsigned long long f) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuMulticastBindAddr(CUmemGenericAllocationHandle a, size_t o, CUdeviceptr p, size_t s, unsigned long long f) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuMulticastBindMem_v2(CUmemGenericAllocationHandle a, CUdevice d, size_t o, CUmemGenericAllocationHandle m, size_t mo, size_t s, unsigned long long f) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuMulticastBindAddr_v2(CUmemGenericAllocationHandle a, CUdevice d, size_t o, CUdeviceptr p, size_t s, unsigned long long f) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointIdReserve(CUlogicalEndpointId *id, cuuint32_t count) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointIdRelease(CUlogicalEndpointId id, cuuint32_t count) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointCreate(CUlogicalEndpointId id, const CUlogicalEndpointProp *prop) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointAddDevice(CUlogicalEndpointId id, CUdevice dev) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointDestroy(CUlogicalEndpointId id) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointBindAddr(CUlogicalEndpointId id, CUdevice dev, cuuint64_t off, void *ptr, cuuint64_t size, unsigned long long flags) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointBindMem(CUlogicalEndpointId id, CUdevice dev, cuuint64_t off, CUmemGenericAllocationHandle mem, cuuint64_t memOff, cuuint64_t size, unsigned long long flags) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointUnbind(CUlogicalEndpointId id, CUdevice dev, cuuint64_t off, cuuint64_t size) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointExport(void *handle, const CUlogicalEndpointId id, CUlogicalEndpointIpcHandleType type) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointImport(CUlogicalEndpointId id, const void *handle, CUlogicalEndpointIpcHandleType type) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointGetLimits(cuuint64_t *align, cuuint64_t *maxSize, const CUlogicalEndpointProp *prop) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuLogicalEndpointQuery(CUlogicalEndpointId id, cuuint32_t count, int *status) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuStreamGetDevResource(CUstream stream, CUdevResource *result, CUdevResourceType type) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuDevSmResourceSplit(CUdevResource *result, unsigned int groups, const CUdevResource *input, CUdevResource *remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS *params) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuStreamBeginCaptureToCig(CUstream stream, CUstreamCigCaptureParams *params) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuStreamEndCaptureToCig(CUstream stream) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuStreamBeginRecaptureToGraph(CUstream stream, CUstreamCaptureMode mode, CUgraph graph, CUgraphRecaptureCallback callback, void *userData) { /* Accounting/isolation model is not yet defined. */ return CUDA_ERROR_NOT_SUPPORTED; }
-/* Exact PTDS ELF entry points are required for fail-closed APIs: both dlsym
- * and cuGetProcAddress(PTDS) can otherwise bypass the base wrappers. */
-CUresult CUDAAPI cuStreamGetDevResource_ptsz(CUstream stream, CUdevResource *result, CUdevResourceType type) { return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuStreamBeginCaptureToCig_ptsz(CUstream stream, CUstreamCigCaptureParams *params) { return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuStreamEndCaptureToCig_ptsz(CUstream stream) { return CUDA_ERROR_NOT_SUPPORTED; }
-CUresult CUDAAPI cuStreamBeginRecaptureToGraph_ptsz(CUstream stream, CUstreamCaptureMode mode, CUgraph graph, CUgraphRecaptureCallback callback, void *userData) { return CUDA_ERROR_NOT_SUPPORTED; }
+CUresult CUDAAPI cuMemcpyBatchAsync(CUdeviceptr *dsts,
+                                    CUdeviceptr *srcs,
+                                    size_t *sizes,
+                                    size_t count,
+                                    CUmemcpyAttributes *attrs,
+                                    size_t *attrIdxs,
+                                    size_t numAttrs,
+                                    size_t *failIdx,
+                                    CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpyBatchAsync,
+                              dsts, srcs, sizes, count, attrs, attrIdxs,
+                              numAttrs, failIdx, hStream);
+}
+
+CUresult CUDAAPI cuMemcpy3DBatchAsync(size_t numOps,
+                                      CUDA_MEMCPY3D_BATCH_OP *opList,
+                                      size_t *failIdx,
+                                      unsigned long long flags,
+                                      CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpy3DBatchAsync,
+                              numOps, opList, failIdx, flags, hStream);
+}
+
+CUresult CUDAAPI cuMemcpyBatchAsync_v2(CUdeviceptr *dsts,
+                                       CUdeviceptr *srcs,
+                                       size_t *sizes,
+                                       size_t count,
+                                       CUmemcpyAttributes *attrs,
+                                       size_t *attrIdxs,
+                                       size_t numAttrs,
+                                       CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpyBatchAsync_v2,
+                              dsts, srcs, sizes, count, attrs, attrIdxs,
+                              numAttrs, hStream);
+}
+
+CUresult CUDAAPI cuMemcpy3DBatchAsync_v2(size_t numOps,
+                                         CUDA_MEMCPY3D_BATCH_OP *opList,
+                                         unsigned long long flags,
+                                         CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpy3DBatchAsync_v2,
+                              numOps, opList, flags, hStream);
+}
+
+CUresult CUDAAPI cuMemcpyWithAttributesAsync(CUdeviceptr dst,
+                                             CUdeviceptr src,
+                                             size_t size,
+                                             CUmemcpyAttributes *attr,
+                                             CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpyWithAttributesAsync,
+                              dst, src, size, attr, hStream);
+}
+
+CUresult CUDAAPI cuMemcpy3DWithAttributesAsync(
+        CUDA_MEMCPY3D_BATCH_OP *op,
+        unsigned long long flags,
+        CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry,
+                              cuMemcpy3DWithAttributesAsync,
+                              op, flags, hStream);
+}
+
+CUresult CUDAAPI cuMemPrefetchBatchAsync(CUdeviceptr *dptrs,
+                                         size_t *sizes,
+                                         size_t count,
+                                         CUmemLocation *locs,
+                                         size_t *idxs,
+                                         size_t numLocs,
+                                         unsigned long long flags,
+                                         CUstream stream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemPrefetchBatchAsync,
+                              dptrs, sizes, count, locs, idxs, numLocs,
+                              flags, stream);
+}
+
+CUresult CUDAAPI cuMemDiscardBatchAsync(CUdeviceptr *dptrs,
+                                        size_t *sizes,
+                                        size_t count,
+                                        unsigned long long flags,
+                                        CUstream stream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemDiscardBatchAsync,
+                              dptrs, sizes, count, flags, stream);
+}
+
+CUresult CUDAAPI cuMemDiscardAndPrefetchBatchAsync(
+        CUdeviceptr *dptrs,
+        size_t *sizes,
+        size_t count,
+        CUmemLocation *locs,
+        size_t *idxs,
+        size_t numLocs,
+        unsigned long long flags,
+        CUstream stream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry,
+                              cuMemDiscardAndPrefetchBatchAsync,
+                              dptrs, sizes, count, locs, idxs, numLocs,
+                              flags, stream);
+}
+
+CUresult CUDAAPI cuMemcpyBatchAsync_ptsz(CUdeviceptr *dsts,
+                                         CUdeviceptr *srcs,
+                                         size_t *sizes,
+                                         size_t count,
+                                         CUmemcpyAttributes *attrs,
+                                         size_t *attrIdxs,
+                                         size_t numAttrs,
+                                         size_t *failIdx,
+                                         CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpyBatchAsync_ptsz,
+                              dsts, srcs, sizes, count, attrs, attrIdxs,
+                              numAttrs, failIdx, hStream);
+}
+
+CUresult CUDAAPI cuMemcpy3DBatchAsync_ptsz(
+        size_t numOps,
+        CUDA_MEMCPY3D_BATCH_OP *opList,
+        size_t *failIdx,
+        unsigned long long flags,
+        CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemcpy3DBatchAsync_ptsz,
+                              numOps, opList, failIdx, flags, hStream);
+}
+
+CUresult CUDAAPI cuMemcpyWithAttributesAsync_ptsz(
+        CUdeviceptr dst,
+        CUdeviceptr src,
+        size_t size,
+        CUmemcpyAttributes *attr,
+        CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry,
+                              cuMemcpyWithAttributesAsync_ptsz,
+                              dst, src, size, attr, hStream);
+}
+
+CUresult CUDAAPI cuMemcpy3DWithAttributesAsync_ptsz(
+        CUDA_MEMCPY3D_BATCH_OP *op,
+        unsigned long long flags,
+        CUstream hStream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry,
+                              cuMemcpy3DWithAttributesAsync_ptsz,
+                              op, flags, hStream);
+}
+
+CUresult CUDAAPI cuMemPrefetchBatchAsync_ptsz(CUdeviceptr *dptrs,
+                                              size_t *sizes,
+                                              size_t count,
+                                              CUmemLocation *locs,
+                                              size_t *idxs,
+                                              size_t numLocs,
+                                              unsigned long long flags,
+                                              CUstream stream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemPrefetchBatchAsync_ptsz,
+                              dptrs, sizes, count, locs, idxs, numLocs,
+                              flags, stream);
+}
+
+CUresult CUDAAPI cuMemDiscardBatchAsync_ptsz(CUdeviceptr *dptrs,
+                                             size_t *sizes,
+                                             size_t count,
+                                             unsigned long long flags,
+                                             CUstream stream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMemDiscardBatchAsync_ptsz,
+                              dptrs, sizes, count, flags, stream);
+}
+
+CUresult CUDAAPI cuMemDiscardAndPrefetchBatchAsync_ptsz(
+        CUdeviceptr *dptrs,
+        size_t *sizes,
+        size_t count,
+        CUmemLocation *locs,
+        size_t *idxs,
+        size_t numLocs,
+        unsigned long long flags,
+        CUstream stream) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry,
+                              cuMemDiscardAndPrefetchBatchAsync_ptsz,
+                              dptrs, sizes, count, locs, idxs, numLocs,
+                              flags, stream);
+}
+
+CUresult CUDAAPI cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle,
+                                    size_t mcOffset,
+                                    CUmemGenericAllocationHandle memHandle,
+                                    size_t memOffset,
+                                    size_t size,
+                                    unsigned long long flags) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMulticastBindMem,
+                              mcHandle, mcOffset, memHandle, memOffset, size, flags);
+}
+
+CUresult CUDAAPI cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle,
+                                     size_t mcOffset,
+                                     CUdeviceptr memptr,
+                                     size_t size,
+                                     unsigned long long flags) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMulticastBindAddr,
+                              mcHandle, mcOffset, memptr, size, flags);
+}
+
+CUresult CUDAAPI cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle,
+                                       CUdevice dev,
+                                       size_t mcOffset,
+                                       CUmemGenericAllocationHandle memHandle,
+                                       size_t memOffset,
+                                       size_t size,
+                                       unsigned long long flags) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMulticastBindMem_v2,
+                              mcHandle, dev, mcOffset, memHandle, memOffset, size, flags);
+}
+
+CUresult CUDAAPI cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle,
+                                        CUdevice dev,
+                                        size_t mcOffset,
+                                        CUdeviceptr memptr,
+                                        size_t size,
+                                        unsigned long long flags) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuMulticastBindAddr_v2,
+                              mcHandle, dev, mcOffset, memptr, size, flags);
+}
+
+CUresult CUDAAPI cuLogicalEndpointIdReserve(CUlogicalEndpointId *baseLeId,
+                                            cuuint32_t count) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointIdReserve,
+                              baseLeId, count);
+}
+
+CUresult CUDAAPI cuLogicalEndpointIdRelease(CUlogicalEndpointId baseLeId,
+                                            cuuint32_t count) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointIdRelease,
+                              baseLeId, count);
+}
+
+CUresult CUDAAPI cuLogicalEndpointCreate(CUlogicalEndpointId leId,
+                                         const CUlogicalEndpointProp *prop) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointCreate,
+                              leId, prop);
+}
+
+CUresult CUDAAPI cuLogicalEndpointAddDevice(CUlogicalEndpointId leId,
+                                            CUdevice dev) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointAddDevice,
+                              leId, dev);
+}
+
+CUresult CUDAAPI cuLogicalEndpointDestroy(CUlogicalEndpointId leId) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointDestroy, leId);
+}
+
+CUresult CUDAAPI cuLogicalEndpointBindAddr(CUlogicalEndpointId leId,
+                                           CUdevice dev,
+                                           cuuint64_t offset,
+                                           void *ptr,
+                                           cuuint64_t size,
+                                           unsigned long long flags) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointBindAddr,
+                              leId, dev, offset, ptr, size, flags);
+}
+
+CUresult CUDAAPI cuLogicalEndpointBindMem(
+        CUlogicalEndpointId leId,
+        CUdevice dev,
+        cuuint64_t offset,
+        CUmemGenericAllocationHandle memHandle,
+        cuuint64_t memOffset,
+        cuuint64_t size,
+        unsigned long long flags) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointBindMem,
+                              leId, dev, offset, memHandle, memOffset, size, flags);
+}
+
+CUresult CUDAAPI cuLogicalEndpointUnbind(CUlogicalEndpointId leId,
+                                         CUdevice dev,
+                                         cuuint64_t offset,
+                                         cuuint64_t size) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointUnbind,
+                              leId, dev, offset, size);
+}
+
+CUresult CUDAAPI cuLogicalEndpointExport(void *handle,
+                                         const CUlogicalEndpointId leId,
+                                         CUlogicalEndpointIpcHandleType handleType) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointExport,
+                              handle, leId, handleType);
+}
+
+CUresult CUDAAPI cuLogicalEndpointImport(CUlogicalEndpointId leId,
+                                         const void *handle,
+                                         CUlogicalEndpointIpcHandleType handleType) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointImport,
+                              leId, handle, handleType);
+}
+
+CUresult CUDAAPI cuLogicalEndpointGetLimits(cuuint64_t *bindAlignment,
+                                            cuuint64_t *maxSize,
+                                            const CUlogicalEndpointProp *prop) {
+    if (prop == NULL) {
+        return CUDA_ERROR_INVALID_VALUE;
+    }
+
+    ENSURE_RUNNING();
+    CUdevice dev;
+    CHECK_DRV_API(cuCtxGetDevice(&dev));
+    cuuint64_t limit = get_current_device_memory_limit(dev);
+    if (limit != 0 && prop->size > limit) {
+        return CUDA_ERROR_OUT_OF_MEMORY;
+    }
+
+    CUresult result = CUDA_OVERRIDE_CALL(cuda_library_entry,
+                                         cuLogicalEndpointGetLimits,
+                                         bindAlignment, maxSize, prop);
+    if (result == CUDA_SUCCESS && limit != 0 && maxSize != NULL &&
+        *maxSize > limit) {
+        *maxSize = limit;
+    }
+    return result;
+}
+
+CUresult CUDAAPI cuLogicalEndpointQuery(CUlogicalEndpointId leId,
+                                        cuuint32_t count,
+                                        int *queryStatus) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuLogicalEndpointQuery,
+                              leId, count, queryStatus);
+}
+
+CUresult CUDAAPI cuStreamGetDevResource(CUstream hStream,
+                                        CUdevResource *result,
+                                        CUdevResourceType type) {
+    /* Accounting/isolation model is not yet defined. */
+    return CUDA_ERROR_NOT_SUPPORTED;
+}
+
+CUresult CUDAAPI cuDevSmResourceSplit(CUdevResource *result,
+                                      unsigned int groupCount,
+                                      const CUdevResource *input,
+                                      CUdevResource *remainder,
+                                      unsigned int flags,
+                                      CU_DEV_SM_RESOURCE_GROUP_PARAMS *groupParams) {
+    /* Accounting/isolation model is not yet defined. */
+    return CUDA_ERROR_NOT_SUPPORTED;
+}
+
+CUresult CUDAAPI cuStreamBeginCaptureToCig(
+        CUstream hStream,
+        CUstreamCigCaptureParams *streamCigCaptureParams) {
+    /* Graphics-related operations are intentionally not forwarded. */
+    return CUDA_ERROR_NOT_SUPPORTED;
+}
+
+CUresult CUDAAPI cuStreamEndCaptureToCig(CUstream hStream) {
+    /* Graphics-related operations are intentionally not forwarded. */
+    return CUDA_ERROR_NOT_SUPPORTED;
+}
+
+CUresult CUDAAPI cuStreamBeginRecaptureToGraph(
+        CUstream hStream,
+        CUstreamCaptureMode mode,
+        CUgraph hGraph,
+        CUgraphRecaptureCallback callbackFunc,
+        void *userData) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry,
+                              cuStreamBeginRecaptureToGraph,
+                              hStream, mode, hGraph, callbackFunc, userData);
+}
+
+/* Exact PTDS ELF entry points are required: both dlsym and
+ * cuGetProcAddress(PTDS) can otherwise bypass the base wrappers. */
+CUresult CUDAAPI cuStreamGetDevResource_ptsz(CUstream hStream,
+                                             CUdevResource *result,
+                                             CUdevResourceType type) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry, cuStreamGetDevResource_ptsz,
+                              hStream, result, type);
+}
+
+CUresult CUDAAPI cuStreamBeginCaptureToCig_ptsz(
+        CUstream hStream,
+        CUstreamCigCaptureParams *streamCigCaptureParams) {
+    /* Graphics-related operations are intentionally not forwarded. */
+    return CUDA_ERROR_NOT_SUPPORTED;
+}
+
+CUresult CUDAAPI cuStreamEndCaptureToCig_ptsz(CUstream hStream) {
+    /* Graphics-related operations are intentionally not forwarded. */
+    return CUDA_ERROR_NOT_SUPPORTED;
+}
+
+CUresult CUDAAPI cuStreamBeginRecaptureToGraph_ptsz(
+        CUstream hStream,
+        CUstreamCaptureMode mode,
+        CUgraph hGraph,
+        CUgraphRecaptureCallback callbackFunc,
+        void *userData) {
+    return CUDA_OVERRIDE_CALL(cuda_library_entry,
+                              cuStreamBeginRecaptureToGraph_ptsz,
+                              hStream, mode, hGraph, callbackFunc, userData);
+}
